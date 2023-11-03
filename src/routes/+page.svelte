@@ -9,7 +9,7 @@
 
 <section>
     <a href="/invoice/create">
-        <Button class="flex gap-1">
+        <Button class="flex gap-2">
             <FilePlus2 />
             Create invoice
         </Button>

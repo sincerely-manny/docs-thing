@@ -1,7 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { date, numeric, pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 
-export const clientTypeEnum = pgEnum('clienttype', ['ИП', 'ООО', 'АО', 'ПАО', 'ФЛ']);
+export const clientTypes = ['ИП', 'ООО', 'АО', 'ПАО', 'ФЛ'] as const;
+const clientTypeEnum = pgEnum('clienttype', clientTypes);
 
 export const clients = pgTable('clients', {
     id: uuid('id')
@@ -15,13 +17,23 @@ export const clients = pgTable('clients', {
     email: varchar('email'),
 });
 
+// export const clientsInsertSchema = z.object({
+//     number: z.string().trim(),
+//     type: z.enum(clientTypes),
+
+// });
+
 export const invoices = pgTable('invoices', {
     id: uuid('id')
         .default(sql`gen_random_uuid()`)
         .notNull()
         .primaryKey(),
+    number: varchar('number').notNull(),
     date: date('date').defaultNow(),
     createdAt: date('created_at', { mode: 'date' }).defaultNow(),
+    clientId: uuid('client_id')
+        .references(() => clients.id)
+        .notNull(),
 });
 
 export const services = pgTable('services', {
@@ -46,3 +58,5 @@ export const payments = pgTable('payments', {
     invoiceId: uuid('invoice_id').references(() => invoices.id),
     serviceId: uuid('service_id').references(() => services.id),
 });
+
+export default { clients, invoices, payments, services };

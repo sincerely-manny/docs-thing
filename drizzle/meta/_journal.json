@@ -15,6 +15,20 @@
       "when": 1698944331741,
       "tag": "0001_material_lizard",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1698967180498,
+      "tag": "0002_regular_nekra",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1698967302269,
+      "tag": "0003_cool_hannibal_king",
+      "breakpoints": true
     }
   ]
 }
