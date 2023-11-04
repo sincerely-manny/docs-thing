@@ -1,15 +1,14 @@
 <script lang="ts">
-    import { Button, Dropdown, Input, Label, Radio } from 'flowbite-svelte';
-    import { ChevronRightCircle, Save } from 'lucide-svelte';
+    import { A, Button, Dropdown, Input, Label, Radio } from 'flowbite-svelte';
+    import { ChevronRightCircle, Save, UserPlus } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
 
     export let data: PageData;
 
     const { form } = superForm(data.form);
-    const clientOptions = data.clients.map((client) => ({ value: client.id, name: client.name }));
     let selectedClient: (typeof data.clients)[number]['id'] | undefined = undefined;
-    let selectClientOpen = false;
+    let selectClientOpen = true;
 </script>
 
 <section>
@@ -21,8 +20,9 @@
                 <ChevronRightCircle />
             </Button>
             <Dropdown
-                class="flex flex-col gap-2 rounded bg-slate-500 p-4"
+                class="flex flex-col gap-2 p-4"
                 placement="right-start"
+                containerClass="bg-slate-500"
                 bind:open={selectClientOpen}
             >
                 {#each data.clients as client}
@@ -32,11 +32,18 @@
                             bind:group={selectedClient}
                             value={client.id}
                             on:change={() => (selectClientOpen = false)}
+                            class="cursor-pointer text-white"
                         >
                             {client.name}, {client.type}
                         </Radio>
                     </li>
                 {/each}
+                <a href="/client/create?ref=/invoice/create">
+                    <Button color="alternative" size="xs" class="flex gap-1">
+                        <UserPlus size="16" />
+                        Create new
+                    </Button>
+                </a>
             </Dropdown>
         </div>
         <Label class="flex place-items-center">
