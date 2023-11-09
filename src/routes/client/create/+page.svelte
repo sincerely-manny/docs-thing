@@ -54,7 +54,10 @@
         validate('inn');
         $form.ogrn = org.data.ogrn;
         validate('ogrn');
-        $form.address = org.data.address.data.postal_code + ', ' + org.data.address.value;
+        const addressContainsIndex = /^[0-9]{6}.*/.test(org.data.address.value);
+        $form.address =
+            (!addressContainsIndex ? org.data.address.data.postal_code + ', ' : '') +
+            org.data.address.value;
         validate('address');
         $form.email = org.data.emails || $form.email;
         validate('email');
@@ -63,12 +66,40 @@
 
     $: $form.opf = selectedSearchOption === searchOptions[0] ? searchOptions[0] : clientTypes[1];
 
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyPressOnNameInput = (e: KeyboardEvent) => {
         if (e.code === 'ArrowDown') {
             e.preventDefault();
             (
                 document.getElementsByClassName('dropdown-list-item')[0] as HTMLButtonElement
             )?.focus();
+        }
+    };
+    const handleKeyPressOnListItem = (e: KeyboardEvent) => {
+        const { code } = e;
+        const currentTarget = e.currentTarget as HTMLButtonElement;
+        if (code === 'ArrowDown' || code === 'ArrowUp' || code === 'Escape') {
+            e.preventDefault();
+            e.stopPropagation();
+            const [next, prev, firstEl] = [
+                currentTarget?.nextElementSibling,
+                currentTarget?.previousElementSibling,
+                currentTarget?.parentElement?.firstElementChild,
+            ] as HTMLElement[];
+            // const lastEl = parent?.lastElementChild as HTMLButtonElement;
+            const input = document.getElementById('nameInput');
+            let focusTo: HTMLElement | undefined;
+            switch (code) {
+                case 'ArrowDown':
+                    focusTo = next || firstEl;
+                    break;
+                case 'ArrowUp':
+                    focusTo = prev || input;
+                    break;
+                case 'Escape':
+                    focusTo = input || undefined;
+                    break;
+            }
+            focusTo?.focus();
         }
     };
 </script>
@@ -95,15 +126,16 @@
             <FloatingLabelInput
                 type="text"
                 name="name"
+                id="nameInput"
                 bind:value={$form.name}
                 color={$errors.name ? 'red' : 'base'}
-                on:keydown={handleKeyPress}
+                on:keydown={handleKeyPressOnNameInput}
             >
                 Name
             </FloatingLabelInput>
             <Helper color="red">{$errors.name || ''}&nbsp;</Helper>
             <div />
-            <Dropdown bind:open={namesearchDropdpwnIsOpen} class="max-w-lg">
+            <Dropdown bind:open={namesearchDropdpwnIsOpen} class="z-10 max-w-lg">
                 {#if !suggestedOrgs}
                     <Listgroup>
                         <ListgroupItem><Spinner /></ListgroupItem>
@@ -113,11 +145,12 @@
                         <ListgroupItem>No results</ListgroupItem>
                     </Listgroup>
                 {:else}
-                    <Listgroup active>
+                    <Listgroup active class="flex flex-col">
                         {#each suggestedOrgs.suggestions as org, i}
                             <ListgroupItem
                                 on:click={() => handleSuggestionClick(org)}
-                                class="dropdown-list-item outline outline-1 outline-red-500 focus:outline-green-500"
+                                on:keydown={handleKeyPressOnListItem}
+                                class="dropdown-list-item outline outline-0 ring-0 transition-colors duration-200 dark:focus:bg-gray-600 dark:focus:text-white"
                                 tabindex="-1"
                             >
                                 <div class="flex flex-col items-start gap-1 font-normal">
