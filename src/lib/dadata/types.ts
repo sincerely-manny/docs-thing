@@ -188,7 +188,8 @@ export type Opf = {
     type: string;
     code: string;
     full: string;
-    short: string;
+    // short: string;
+    short: 'ИП' | 'ООО' | 'АО' | 'ПАО';
 };
 
 export type State = {

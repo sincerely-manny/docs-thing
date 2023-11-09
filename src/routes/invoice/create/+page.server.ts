@@ -1,14 +1,11 @@
-import { queryClient } from '$lib/db/client';
-import * as dbSchema from '$lib/db/schema';
+import db from '$lib/db/client';
 import { invoices } from '$lib/db/schema';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import { createInsertSchema } from 'drizzle-zod';
 import { superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';
 
 export const load = (async () => {
     const schema = createInsertSchema(invoices);
-    const db = drizzle(queryClient, { schema: dbSchema });
 
     const clients = await db.query.clients.findMany({
         orderBy: (clients, { asc }) => [asc(clients.name)],

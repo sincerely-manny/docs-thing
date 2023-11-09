@@ -1,26 +1,38 @@
 <script lang="ts">
-    import { A, Button, Dropdown, Input, Label, Radio } from 'flowbite-svelte';
+    import {
+        A,
+        Button,
+        Datepicker,
+        Dropdown,
+        FloatingLabelInput,
+        Helper,
+        Input,
+        Label,
+        Radio,
+    } from 'flowbite-svelte';
     import { ChevronRightCircle, Save, UserPlus } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
+    import { page } from '$app/stores';
 
     export let data: PageData;
 
-    const { form } = superForm(data.form);
-    let selectedClient: (typeof data.clients)[number]['id'] | undefined = undefined;
-    let selectClientOpen = true;
+    const { form, errors } = superForm(data.form);
+    let selectedClient: (typeof data.clients)[number]['id'] | undefined =
+        $page.url.searchParams.get('clientId') || undefined;
+    let selectClientOpen = !selectedClient;
 </script>
 
-<section>
-    <form method="POST" class="flex max-w-lg flex-col gap-5">
-        <div>
+<section class="flex justify-center">
+    <form method="POST" class="flex w-[512px] flex-col gap-5">
+        <div class="z-10">
             <Button class="flex w-1/2 justify-between">
                 {data.clients.find((client) => client.id === selectedClient)?.name ||
                     'Select a client'}
                 <ChevronRightCircle />
             </Button>
             <Dropdown
-                class="flex flex-col gap-2 p-4"
+                class="z-10 flex flex-col gap-2 p-4"
                 placement="right-start"
                 containerClass="bg-slate-500"
                 bind:open={selectClientOpen}
@@ -32,9 +44,9 @@
                             bind:group={selectedClient}
                             value={client.id}
                             on:change={() => (selectClientOpen = false)}
-                            class="cursor-pointer text-white"
+                            class="cursor-pointer"
                         >
-                            {client.name}, {client.type}
+                            {client.name}, {client.opf}
                         </Radio>
                     </li>
                 {/each}
@@ -46,10 +58,18 @@
                 </a>
             </Dropdown>
         </div>
-        <Label class="flex place-items-center">
-            <span class="w-24 text-white"> Invoice # </span>
-            <Input type="text" name="number" bind:value={$form.number} />
-        </Label>
+        <div>
+            <FloatingLabelInput
+                type="number"
+                name="number"
+                bind:value={$form.number}
+                color={$errors.number ? 'red' : 'base'}
+            >
+                Invoice #
+            </FloatingLabelInput>
+            <Helper color="red">{$errors.number || ''}&nbsp;</Helper>
+        </div>
+        <Datepicker datepickerFormat="dd.mm.yyyy" datepickerTitle="Invoice date" />
         <Button type="submit" class="flex gap-2">
             <Save />
             Submit
