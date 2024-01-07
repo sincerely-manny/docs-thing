@@ -1,9 +1,8 @@
 <script lang="ts">
-    import { clientTypes, clientsInsertSchema } from '$lib/db/schema';
     import { page } from '$app/stores';
+    import { clientTypes, clientsInsertSchema } from '$lib/db/schema';
     import {
         Button,
-        Dropdown,
         FloatingLabelInput,
         Helper,
         Label,
@@ -12,17 +11,18 @@
         Radio,
         Spinner,
     } from 'flowbite-svelte';
-    import type { ResDTO, Suggestion } from 'lib/dadata/types';
+    import type { ResDTO, Suggestion } from '$lib/dadata/types';
     import debounce from 'lodash.debounce';
     import { Save } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
-    import type { SubmitFunction } from '@sveltejs/kit';
+    import TextInput from 'components/form/TextInput.svelte';
     import type { SvelteComponent } from 'svelte';
 
     export let data: PageData;
     const { form, enhance, errors, validate } = superForm(data.form, {
         validators: clientsInsertSchema,
+        taintedMessage: null,
     });
     const searchOptions = ['ФЛ', 'ЮЛ/ИП'] as const;
     let selectedSearchOption: (typeof searchOptions)[number] = searchOptions[1];
@@ -61,17 +61,23 @@
         validate('address');
         $form.email = org.data.emails || $form.email;
         validate('email');
-        document.getElementById('email')?.focus();
+        document.getElementById('emailInput')?.focus();
     };
 
     $: $form.opf = selectedSearchOption === searchOptions[0] ? searchOptions[0] : clientTypes[1];
 
     const handleKeyPressOnNameInput = (e: KeyboardEvent) => {
-        if (e.code === 'ArrowDown') {
+        const { code } = e;
+        if (code === 'ArrowDown' || code === 'Escape') {
             e.preventDefault();
-            (
-                document.getElementsByClassName('dropdown-list-item')[0] as HTMLButtonElement
-            )?.focus();
+            e.stopPropagation();
+            if (code === 'ArrowDown') {
+                (
+                    document.getElementsByClassName('dropdown-list-item')[0] as HTMLButtonElement
+                )?.focus();
+            } else {
+                namesearchDropdpwnIsOpen = false;
+            }
         }
     };
     const handleKeyPressOnListItem = (e: KeyboardEvent) => {
@@ -122,6 +128,7 @@
             tabindex="-1"
             on:focusin={() => (nameFieldIsFocused = true)}
             on:focusout={() => (nameFieldIsFocused = false)}
+            class="relative"
         >
             <FloatingLabelInput
                 type="text"
@@ -135,22 +142,29 @@
             </FloatingLabelInput>
             <Helper color="red">{$errors.name || ''}&nbsp;</Helper>
             <div />
-            <Dropdown bind:open={namesearchDropdpwnIsOpen} class="z-10 max-w-lg">
+            <div
+                role="tooltip"
+                class={`absolute w-full ${namesearchDropdpwnIsOpen ? '' : 'hidden'}`}
+            >
                 {#if !suggestedOrgs}
                     <Listgroup>
-                        <ListgroupItem><Spinner /></ListgroupItem>
+                        <ListgroupItem class="flex justify-center"><Spinner /></ListgroupItem>
                     </Listgroup>
                 {:else if suggestedOrgs.suggestions.length === 0}
                     <Listgroup>
-                        <ListgroupItem>No results</ListgroupItem>
+                        <ListgroupItem class="flex justify-center">No results</ListgroupItem>
                     </Listgroup>
                 {:else}
-                    <Listgroup active class="flex flex-col">
+                    <Listgroup active class="relative z-10 flex flex-col">
                         {#each suggestedOrgs.suggestions as org, i}
                             <ListgroupItem
-                                on:click={() => handleSuggestionClick(org)}
+                                on:click={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleSuggestionClick(org);
+                                }}
                                 on:keydown={handleKeyPressOnListItem}
-                                class="dropdown-list-item outline outline-0 ring-0 transition-colors duration-200 dark:focus:bg-gray-600 dark:focus:text-white"
+                                class="dropdown-list-item relative z-10 outline outline-0 ring-0 transition-colors duration-200 dark:focus:bg-gray-600 dark:focus:text-white"
                                 tabindex="-1"
                             >
                                 <div class="flex flex-col items-start gap-1 font-normal">
@@ -165,7 +179,7 @@
                         {/each}
                     </Listgroup>
                 {/if}
-            </Dropdown>
+            </div>
         </div>
         {#if selectedSearchOption !== searchOptions[0]}
             <div>
@@ -184,50 +198,13 @@
                 <Helper color="red">{$errors.opf || ''}&nbsp;</Helper>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <FloatingLabelInput
-                        type="text"
-                        name="inn"
-                        bind:value={$form.inn}
-                        color={$errors.inn ? 'red' : 'base'}
-                    >
-                        INN
-                    </FloatingLabelInput>
-                    <Helper color="red">{$errors.inn || ''}&nbsp;</Helper>
-                </div>
-                <div>
-                    <FloatingLabelInput
-                        type="text"
-                        name="ogrn"
-                        bind:value={$form.ogrn}
-                        color={$errors.ogrn ? 'red' : 'base'}
-                    >
-                        OGRN
-                    </FloatingLabelInput>
-                    <Helper color="red">{$errors.ogrn || ''}&nbsp;</Helper>
-                </div>
+                <TextInput {form} {errors} name="inn" label="INN" />
+                <TextInput {form} {errors} name="ogrn" label="OGRN" />
             </div>
         {/if}
         <input type="hidden" name="opf" bind:value={$form.opf} />
-        <FloatingLabelInput
-            type="text"
-            name="address"
-            bind:value={$form.address}
-            color={$errors.address ? 'red' : 'base'}
-        >
-            Address
-        </FloatingLabelInput>
-        <Helper color="red">{$errors.address || ''}&nbsp;</Helper>
-        <FloatingLabelInput
-            type="email"
-            name="email"
-            id="email"
-            bind:value={$form.email}
-            color={$errors.email ? 'red' : 'base'}
-        >
-            Email
-        </FloatingLabelInput>
-        <Helper color="red">{$errors.email || ''}&nbsp;</Helper>
+        <TextInput {form} {errors} name="address" label="Address" />
+        <TextInput {form} {errors} name="email" label="Email" id="emailInput" />
         <Button type="submit" class="flex gap-2">
             <Save />
             Save

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme');
+
 export default {
     content: [
         './src/**/*.{html,js,svelte,ts}',
@@ -8,6 +10,9 @@ export default {
     darkMode: 'class',
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['"Roboto Flex"', ...defaultTheme.fontFamily.sans],
+            },
             colors: {
                 // flowbite-svelte
                 primary: {
@@ -22,6 +27,9 @@ export default {
                     800: '#CC4522',
                     900: '#A5371B',
                 },
+            },
+            aria: {
+                current: 'current="true"',
             },
         },
     },
