@@ -44,19 +44,19 @@
 </script>
 
 <section
-    class="group relative box-content bg-slate-200/80 text-slate-600 backdrop-blur-xl"
+    class="group relative border-r border-slate-800/80 bg-white/10 text-slate-600"
     bind:this={containerRef}
     on:mousemove={handleMousemove}
     on:mouseleave={handleMouseout}
     role="application"
 >
-    <nav class="flex flex-col overflow-hidden py-4">
+    <nav class="flex flex-col gap-4 overflow-hidden bg-transparent p-4 text-xs">
         {#each links as [link, title, Icon]}
             <a
                 href={link}
-                class="static flex
-                flex-col items-center gap-1 px-4 py-2 transition-all duration-150 hover:text-slate-800 active:opacity-60
-                group-hover:transition-[colors,opacity] aria-current:bg-slate-700 aria-current:text-primary-500"
+                class="static flex aspect-square flex-col
+                items-center justify-center gap-1 rounded-full bg-white/50 p-3 shadow-lg outline outline-1 transition-all duration-150 hover:text-slate-800
+                active:opacity-60 group-hover:transition-[colors,opacity] aria-current:bg-slate-700/50 aria-current:text-primary-500"
                 aria-current={'/' + $page.url.pathname.split('/')[1] === link}
             >
                 <Icon />

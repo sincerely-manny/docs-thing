@@ -68,7 +68,12 @@
                 <Helper color="red">{$errors.number || ''}&nbsp;</Helper>
             </div>
         </div>
-        <Datepicker datepickerFormat="dd.mm.yyyy" datepickerTitle="Invoice date" />
+        <Datepicker
+            datepickerFormat="dd.mm.yyyy"
+            datepickerTitle="Invoice date"
+            name="date"
+            bind:value={$form.date}
+        />
         <Button type="submit" class="flex gap-2">
             <Save />
             Submit

@@ -21,6 +21,7 @@ export const load = (async () => {
 
     const formdata = {
         number: (latestInvoice?.number ? parseInt(latestInvoice.number) + 1 : 1).toString(),
+        date: new Date().toLocaleDateString('ru-RU'),
     };
 
     const form = await superValidate(formdata, schema);

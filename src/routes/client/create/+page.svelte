@@ -17,7 +17,6 @@
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
     import TextInput from 'components/form/TextInput.svelte';
-    import type { SvelteComponent } from 'svelte';
 
     export let data: PageData;
     const { form, enhance, errors, validate } = superForm(data.form, {

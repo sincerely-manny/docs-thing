@@ -8,7 +8,7 @@
         class="dark container mx-auto flex min-h-screen justify-stretch justify-items-stretch gap-10 p-10 text-gray-300"
     >
         <div
-            class="flex grow justify-stretch justify-items-stretch gap-0 overflow-clip rounded-lg bg-slate-700/80 shadow-2xl backdrop-blur-xl"
+            class="flex grow justify-stretch justify-items-stretch gap-0 overflow-clip rounded-lg bg-slate-700/80 shadow-xl backdrop-blur-xl"
         >
             <Sidebar />
             <section class="grow p-10">
