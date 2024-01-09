@@ -50,6 +50,7 @@
         "lodash.debounce": "^4.0.8",
         "lodash.throttle": "^4.1.1",
         "lucide-svelte": "^0.306.0",
+        "nanoid": "^5.0.4",
         "pg": "^8.11.3",
         "postgres": "^3.4.3",
         "superjson": "^2.2.0",

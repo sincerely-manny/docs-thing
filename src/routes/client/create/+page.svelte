@@ -197,13 +197,20 @@
                 <Helper color="red">{$errors.opf || ''}&nbsp;</Helper>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <TextInput {form} {errors} name="inn" label="INN" />
-                <TextInput {form} {errors} name="ogrn" label="OGRN" />
+                <TextInput {form} {errors} name="inn" label="INN" bind:value={$form.inn} />
+                <TextInput {form} {errors} name="ogrn" label="OGRN" bind:value={$form.ogrn} />
             </div>
         {/if}
         <input type="hidden" name="opf" bind:value={$form.opf} />
-        <TextInput {form} {errors} name="address" label="Address" />
-        <TextInput {form} {errors} name="email" label="Email" id="emailInput" />
+        <TextInput {form} {errors} name="address" label="Address" bind:value={$form.address} />
+        <TextInput
+            {form}
+            {errors}
+            name="email"
+            label="Email"
+            id="emailInput"
+            bind:value={$form.email}
+        />
         <Button type="submit" class="flex gap-2">
             <Save />
             Save

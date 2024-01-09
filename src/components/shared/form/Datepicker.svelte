@@ -6,8 +6,7 @@
     import type { ZodValidation } from 'sveltekit-superforms';
     import { type SuperForm } from 'sveltekit-superforms/client';
     import { z } from 'zod';
-    import tailwindConfig from '../../../../tailwind.config';
-    import resolveConfig from 'tailwindcss/resolveConfig';
+    import theme from '$lib/tailwindconfig';
 
     export let form: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['form'];
     export let errors: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['errors'];
@@ -43,8 +42,6 @@
     };
 
     $: datepickerOpen = isFocused;
-
-    const { theme } = resolveConfig(tailwindConfig);
 </script>
 
 <div {...$$restProps} on:focusin={handleFocusIn} on:focusout={handleFocusOut} tabindex="-1">

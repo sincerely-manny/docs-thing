@@ -2,8 +2,7 @@
     import { enhance } from '$app/forms';
     import { page } from '$app/stores';
     import Datepicker from 'components/shared/form/Datepicker.svelte';
-    import TextInput from 'components/shared/form/TextInput.svelte';
-    import WithTooltip from 'components/shared/form/WithTooltip.svelte';
+    import TextInputsArray from 'components/shared/form/TextInputsArray.svelte';
     import { Button, Dropdown, FloatingLabelInput, Helper, Radio } from 'flowbite-svelte';
     import { ChevronDownCircle, Save, UserPlus } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
@@ -17,7 +16,11 @@
         $page.url.searchParams.get('clientId') || undefined;
     let selectClientOpen = !selectedClient;
 
-    const servicesInputs = ['', ''];
+    let services = [{ title: '', price: '' }];
+
+    $: {
+        console.log(services);
+    }
 </script>
 
 <section class="flex justify-center">
@@ -71,26 +74,14 @@
             </div>
             <Datepicker {form} {errors} name="date" label="Date" />
         </div>
-        <div>
-            <p class="mb-2">Services:</p>
-            {#each servicesInputs as input, i}
-                <div class="flex items-center justify-stretch gap-4">
-                    <span>
-                        #{i + 1}
-                    </span>
-                    <WithTooltip
-                        value="11"
-                        className="grow"
-                        getSuggestions={() => [{ title: 'dasda', caption: '3211' }]}
-                        onSuggestionClick={(e) => {}}
-                    >
-                        <TextInput {form} {errors} name={`service-title-${i}`} label="Title" />
-                    </WithTooltip>
-                    <TextInput {form} {errors} name={`service-price-${i}`} label="Price" />
-                    <span>₽</span>
-                </div>
-            {/each}
-        </div>
+        <TextInputsArray {form} {errors} name="services" bind:value={services}
+            >Services:</TextInputsArray
+        >
+        <button
+            on:click={() => {
+                console.log(services);
+            }}>dsdsa</button
+        >
         <Button type="submit" class="flex gap-2">
             <Save />
             Submit
