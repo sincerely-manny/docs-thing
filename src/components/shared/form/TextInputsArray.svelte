@@ -2,10 +2,11 @@
     // TODO: abstract fields (title & price)
     import TextInput from 'components/shared/form/TextInput.svelte';
     import WithTooltip from 'components/shared/form/WithTooltip.svelte';
+    import { ArrowDown, ArrowUp } from 'lucide-svelte';
     import { nanoid } from 'nanoid';
     import { cubicInOut } from 'svelte/easing';
     import { writable } from 'svelte/store';
-    import { type TransitionConfig } from 'svelte/transition';
+    import { type TransitionConfig, blur } from 'svelte/transition';
     import type { ZodValidation } from 'sveltekit-superforms';
     import type { SuperForm } from 'sveltekit-superforms/client';
     import { z } from 'zod';
@@ -91,6 +92,11 @@
                 })
                 .filter((v) => v !== undefined) as Value[]) || emptyValue;
     };
+
+    const swap = (a: number, b: number) => {
+        $inputs[a].key = nanoid();
+        [$inputs[a], $inputs[b]] = [$inputs[b], $inputs[a]];
+    };
 </script>
 
 <div
@@ -105,6 +111,34 @@
             class="flex items-center justify-stretch gap-4"
             transition:slideItFromTop={{ duration: 300, amount: 20 }}
         >
+            <div class="-ml-4 flex w-4 flex-col justify-between self-stretch py-3">
+                {#if $inputs[i - 1] && i !== $inputs.length - 1}
+                    <button
+                        transition:blur={{ duration: 300, amount: 20 }}
+                        class="opacity-70 transition-all hover:opacity-100"
+                        on:click={() => {
+                            swap(i, i - 1);
+                        }}
+                    >
+                        <ArrowUp size={14} />
+                    </button>
+                {:else}
+                    <div />
+                {/if}
+                {#if $inputs[i + 1] && !($inputs[i + 1].title.length === 0 && i === $inputs.length - 2)}
+                    <button
+                        transition:blur={{ duration: 300, amount: 20 }}
+                        class="opacity-70 transition-all hover:opacity-100"
+                        on:click={() => {
+                            swap(i, i + 1);
+                        }}
+                    >
+                        <ArrowDown size={14} />
+                    </button>
+                {:else}
+                    <div />
+                {/if}
+            </div>
             <span>
                 #{i + 1}
             </span>

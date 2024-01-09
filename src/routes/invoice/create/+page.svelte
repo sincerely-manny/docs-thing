@@ -17,10 +17,6 @@
     let selectClientOpen = !selectedClient;
 
     let services = [{ title: '', price: '' }];
-
-    $: {
-        console.log(services);
-    }
 </script>
 
 <section class="flex justify-center">
@@ -76,11 +72,6 @@
         </div>
         <TextInputsArray {form} {errors} name="services" bind:value={services}
             >Services:</TextInputsArray
-        >
-        <button
-            on:click={() => {
-                console.log(services);
-            }}>dsdsa</button
         >
         <Button type="submit" class="flex gap-2">
             <Save />
