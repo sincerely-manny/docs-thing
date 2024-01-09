@@ -1,13 +1,17 @@
-/** @type {import('tailwindcss').Config} */
-const defaultTheme = require('tailwindcss/defaultTheme');
+// /** @type {import('tailwindcss').Config} */
+// const defaultTheme = require('tailwindcss/defaultTheme');
+
+import defaultTheme from 'tailwindcss/defaultTheme';
+import type { Config } from 'tailwindcss/types/config';
+import flowbite from 'flowbite/plugin';
 
 export default {
     content: [
         './src/**/*.{html,js,svelte,ts}',
         './node_modules/flowbite-svelte/**/*.{html,js,svelte,ts}',
     ],
-    plugins: [require('flowbite/plugin')],
-    darkMode: 'class',
+    plugins: [flowbite],
+    // darkMode: 'class',
     theme: {
         extend: {
             fontFamily: {
@@ -33,5 +37,4 @@ export default {
             },
         },
     },
-    darkMode: 'class',
-};
+} satisfies Config;

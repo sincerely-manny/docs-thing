@@ -1,13 +1,15 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import throttle from 'lodash.throttle';
-    import { FileStack, Home, Users } from 'lucide-svelte';
+    import { FileSpreadsheet, Home, LayoutList, Receipt, Users } from 'lucide-svelte';
     import type { ComponentType } from 'svelte';
 
     const links: [string, string, ComponentType][] = [
         ['/', 'Dashdoard', Home],
-        ['/invoice', 'Invoices', FileStack],
+        ['/invoice', 'Invoices', Receipt],
         ['/client', 'Clients', Users],
+        ['/contract', 'Contracts', FileSpreadsheet],
+        ['/service', 'Services', LayoutList],
     ];
 
     let containerRef: HTMLElement;
@@ -55,8 +57,8 @@
             <a
                 href={link}
                 class="static flex aspect-square flex-col
-                items-center justify-center gap-1 rounded-full bg-white/50 p-3 shadow-lg outline outline-1 transition-all duration-150 hover:text-slate-800
-                active:opacity-60 group-hover:transition-[colors,opacity] aria-current:bg-slate-700/50 aria-current:text-primary-500"
+                items-center justify-center gap-1 rounded-full bg-white/50 p-3 shadow-lg outline outline-1 transition-all duration-150 hover:bg-white/70 hover:text-slate-800
+                active:opacity-60 group-hover:transition-[colors,opacity] aria-current:bg-slate-700/50 aria-current:text-primary-500 aria-current:hover:bg-slate-700/70"
                 aria-current={'/' + $page.url.pathname.split('/')[1] === link}
             >
                 <Icon />

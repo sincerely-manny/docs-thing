@@ -59,6 +59,12 @@ export const invoices = pgTable('invoices', {
         .notNull(),
 });
 
+export const invoicesInsertSchema = z.object({
+    number: z.string().trim().min(1),
+    date: z.date(),
+    clientId: z.string().uuid(),
+});
+
 export const services = pgTable('services', {
     id: uuid('id')
         .default(sql`gen_random_uuid()`)

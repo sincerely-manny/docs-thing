@@ -41,6 +41,7 @@
         "@sveltejs/adapter-auto": "^3.1.0",
         "@sveltejs/kit": "^2.0.6",
         "@sveltejs/vite-plugin-svelte": "^3.0.1",
+        "date-picker-svelte": "^2.10.1",
         "dotenv": "^16.3.1",
         "drizzle-orm": "^0.29.0",
         "drizzle-zod": "^0.5.1",

@@ -18,6 +18,8 @@
         bind:value={$form[name.toString()]}
         color={$errors[name.toString()] ? 'red' : 'base'}
         {...$$restProps}
+        on:input
+        on:change
     >
         {label}
     </FloatingLabelInput>

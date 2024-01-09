@@ -1,7 +1,7 @@
 import db from '$lib/db/client';
 import { clients, clientsInsertSchema } from '$lib/db/schema';
 import { fail, redirect, type Actions } from '@sveltejs/kit';
-import type { InferModel, InferSelectModel } from 'drizzle-orm';
+import type { InferSelectModel } from 'drizzle-orm';
 import type { PostgresError } from 'postgres';
 import { setError, superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';

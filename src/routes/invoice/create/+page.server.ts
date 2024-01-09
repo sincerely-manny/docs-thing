@@ -1,12 +1,11 @@
 import db from '$lib/db/client';
-import { invoices } from '$lib/db/schema';
+import { invoices, invoicesInsertSchema } from '$lib/db/schema';
+import { fail, redirect, type Actions } from '@sveltejs/kit';
 import { createInsertSchema } from 'drizzle-zod';
 import { superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';
 
 export const load = (async () => {
-    const schema = createInsertSchema(invoices);
-
     const clients = await db.query.clients.findMany({
         orderBy: (clients, { asc }) => [asc(clients.name)],
     });
@@ -21,10 +20,19 @@ export const load = (async () => {
 
     const formdata = {
         number: (latestInvoice?.number ? parseInt(latestInvoice.number) + 1 : 1).toString(),
-        date: new Date().toLocaleDateString('ru-RU'),
+        date: new Date(), // .toLocaleDateString('ru-RU'),
     };
 
-    const form = await superValidate(formdata, schema);
+    const form = await superValidate(formdata, invoicesInsertSchema);
 
     return { form, clients, latestNumber: latestInvoice?.number };
 }) satisfies PageServerLoad;
+
+export const actions = {
+    default: async ({ request, url }) => {
+        console.log(request);
+        const form = await superValidate(request, invoicesInsertSchema);
+        console.log(form);
+        return form;
+    },
+} satisfies Actions;
