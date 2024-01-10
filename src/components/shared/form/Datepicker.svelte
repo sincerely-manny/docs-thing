@@ -39,7 +39,7 @@
     $: string = dateToString(value);
 
     const handleInput = (event: Event) => {
-        $errors[name.toString()] = [];
+        $errors[name.toString()] = undefined;
         const input = event.currentTarget as HTMLInputElement;
         if (!input) {
             throw new Error('Error handling input');
