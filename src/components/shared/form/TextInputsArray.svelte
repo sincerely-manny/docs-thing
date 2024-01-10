@@ -11,7 +11,6 @@
     import type { SuperForm } from 'sveltekit-superforms/client';
     import { z } from 'zod';
 
-    export let form: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['form'];
     export let errors: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['errors'];
     export let name: string;
 
@@ -95,6 +94,7 @@
 
     const swap = (a: number, b: number) => {
         $inputs[a].key = nanoid();
+        $inputs[b].key = nanoid();
         [$inputs[a], $inputs[b]] = [$inputs[b], $inputs[a]];
     };
 </script>
@@ -116,7 +116,8 @@
                     <button
                         transition:blur={{ duration: 300, amount: 20 }}
                         class="opacity-70 transition-all hover:opacity-100"
-                        on:click={() => {
+                        type="button"
+                        on:click|preventDefault={() => {
                             swap(i, i - 1);
                         }}
                     >
@@ -129,7 +130,8 @@
                     <button
                         transition:blur={{ duration: 300, amount: 20 }}
                         class="opacity-70 transition-all hover:opacity-100"
-                        on:click={() => {
+                        type="button"
+                        on:click|preventDefault={() => {
                             swap(i, i + 1);
                         }}
                     >
@@ -149,7 +151,6 @@
                 onSuggestionClick={(e) => {}}
             >
                 <TextInput
-                    {form}
                     {errors}
                     name={`${name}-title-${i}`}
                     label="Title"
@@ -157,7 +158,6 @@
                 />
             </WithTooltip>
             <TextInput
-                {form}
                 {errors}
                 name={`${name}-price-${i}`}
                 label="Price"

@@ -1,35 +1,28 @@
 <script lang="ts">
+    import theme from '$lib/tailwindconfig';
     import { DatePicker } from 'date-picker-svelte';
     import { FloatingLabelInput, Helper } from 'flowbite-svelte';
-    import { derived } from 'svelte/store';
     import { blur } from 'svelte/transition';
     import type { ZodValidation } from 'sveltekit-superforms';
     import { type SuperForm } from 'sveltekit-superforms/client';
     import { z } from 'zod';
-    import theme from '$lib/tailwindconfig';
 
-    export let form: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['form'];
     export let errors: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['errors'];
-    export let name: keyof typeof $form;
+    export let name: string;
     export let label: string;
+    export let value: Date = new Date();
 
-    const readable = derived(form, ($form) => $form[name.toString()].toLocaleDateString('ru-RU'));
-    $: inputValue = $readable;
-
-    const handleInput = () => {
-        $errors[name.toString()] = [];
-        try {
-            const re = /^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$/;
-            if (!re.test(inputValue.trim())) {
-                throw new Error('Invalid date format');
-            }
-            const [day, month, year] = inputValue.split('.');
-            const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-            $form[name.toString()] = date;
-        } catch (e) {
-            $errors[name.toString()] = [(e as Error).toString()];
+    const stringToDate = (string: string) => {
+        const re = /^[0-9]{2}\.[0-9]{2}\.[0-9]{4}$/;
+        if (!re.test(string.trim())) {
+            throw new Error('Invalid date format');
         }
+        const [day, month, year] = string.split('.');
+        const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+        return date;
     };
+
+    const dateToString = (date: Date) => date.toLocaleDateString('ru-RU');
 
     let datepickerOpen = false;
     let isFocused = false;
@@ -42,6 +35,21 @@
     };
 
     $: datepickerOpen = isFocused;
+
+    $: string = dateToString(value);
+
+    const handleInput = (event: Event) => {
+        $errors[name.toString()] = [];
+        const input = event.currentTarget as HTMLInputElement;
+        if (!input) {
+            throw new Error('Error handling input');
+        }
+        try {
+            value = stringToDate(input.value);
+        } catch (err) {
+            $errors[name.toString()] = [(err as Error).toString()];
+        }
+    };
 </script>
 
 <div {...$$restProps} on:focusin={handleFocusIn} on:focusout={handleFocusOut} tabindex="-1">
@@ -49,7 +57,7 @@
         type="text"
         name={`readable-${name.toString()}`}
         color={$errors[name.toString()] ? 'red' : 'base'}
-        bind:value={inputValue}
+        value={string}
         on:input={handleInput}
     >
         {label}
@@ -68,7 +76,7 @@
             `}
         >
             <div class="absolute">
-                <DatePicker bind:value={$form[name.toString()]} />
+                <DatePicker bind:value />
             </div>
         </div>
     {/if}

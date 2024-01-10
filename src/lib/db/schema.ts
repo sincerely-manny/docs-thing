@@ -35,7 +35,7 @@ export const clientsInsertSchema = z
             .regex(/^[0-9]*$/)
             .optional(),
         address: z.string().trim().min(2).optional(),
-        email: z.string().trim().email().optional(),
+        email: z.union([z.literal(''), z.string().trim().email()]).optional(),
     })
     .refine(({ inn, opf }) => opf === 'ФЛ' || inn, {
         message: 'Для ЮЛ/ИП должен быть указан ИНН',

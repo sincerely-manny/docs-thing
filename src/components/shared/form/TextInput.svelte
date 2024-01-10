@@ -4,9 +4,8 @@
     import type { SuperForm } from 'sveltekit-superforms/client';
     import type { z } from 'zod';
 
-    let form: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['form'];
     export let errors: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['errors'];
-    export let name: keyof typeof $form;
+    export let name: string;
     export let label: string;
     export let className: string | undefined = undefined;
     export let value: string | undefined = '';
@@ -18,9 +17,9 @@
         {name}
         bind:value
         color={$errors[name.toString()] ? 'red' : 'base'}
-        {...$$restProps}
         on:input
         on:change
+        {...$$restProps}
     >
         {label}
     </FloatingLabelInput>

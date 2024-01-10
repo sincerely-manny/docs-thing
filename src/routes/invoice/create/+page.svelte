@@ -5,6 +5,7 @@
     import TextInputsArray from 'components/shared/form/TextInputsArray.svelte';
     import { Button, Dropdown, FloatingLabelInput, Helper, Radio } from 'flowbite-svelte';
     import { ChevronDownCircle, Save, UserPlus } from 'lucide-svelte';
+    import { blur } from 'svelte/transition';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
 
@@ -22,14 +23,44 @@
 <section class="flex justify-center">
     <form method="POST" class="flex w-[512px] flex-col gap-5" use:enhance>
         <div class="relative z-20">
-            <Button class="flex w-full items-end justify-between">
+            <Button
+                class="flex w-full items-end justify-between"
+                on:click={() => {
+                    selectClientOpen = !selectClientOpen;
+                }}
+            >
                 <div class="flex min-h-6 items-center justify-start">
                     {data.clients.find((client) => client.id === selectedClient)?.name ||
                         'Select a client'}
                 </div>
                 <ChevronDownCircle class="shrink-0" />
             </Button>
-            <Dropdown
+            {#if selectClientOpen}
+                <div
+                    role="tooltip"
+                    transition:blur={{ amount: 20, duration: 300 }}
+                    class="absolute mt-2 flex max-h-96 w-full flex-col gap-2 overflow-scroll rounded-lg bg-slate-700 p-4"
+                >
+                    {#each data.clients as client}
+                        <Radio
+                            name="clientsGroup"
+                            bind:group={selectedClient}
+                            value={client.id}
+                            on:change={() => (selectClientOpen = false)}
+                            class="cursor-pointer"
+                        >
+                            {client.name}, {client.opf}
+                        </Radio>
+                    {/each}
+                    <a href="/client/create?ref=/invoice/create">
+                        <Button color="alternative" size="xs" class="flex gap-1">
+                            <UserPlus size="16" />
+                            Create new
+                        </Button>
+                    </a>
+                </div>
+            {/if}
+            <!-- <Dropdown
                 class="flex w-full flex-col gap-2 p-4"
                 placement="bottom"
                 containerClass="bg-slate-500"
@@ -54,7 +85,7 @@
                         Create new
                     </Button>
                 </a>
-            </Dropdown>
+            </Dropdown> -->
         </div>
         <div class="z-10 grid grid-cols-2 gap-5">
             <div>
@@ -70,9 +101,7 @@
             </div>
             <Datepicker {form} {errors} name="date" label="Date" />
         </div>
-        <TextInputsArray {form} {errors} name="services" bind:value={services}
-            >Services:</TextInputsArray
-        >
+        <TextInputsArray {errors} name="services" bind:value={services}>Services:</TextInputsArray>
         <Button type="submit" class="flex gap-2">
             <Save />
             Submit

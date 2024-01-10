@@ -1,6 +1,8 @@
 <script lang="ts">
     import { page } from '$app/stores';
+    import type { ResDTO, Suggestion } from '$lib/dadata/types';
     import { clientTypes, clientsInsertSchema } from '$lib/db/schema';
+    import TextInput from 'components/shared/form/TextInput.svelte';
     import {
         Button,
         FloatingLabelInput,
@@ -11,12 +13,10 @@
         Radio,
         Spinner,
     } from 'flowbite-svelte';
-    import type { ResDTO, Suggestion } from '$lib/dadata/types';
     import debounce from 'lodash.debounce';
     import { Save } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
-    import TextInput from 'components/shared/form/TextInput.svelte';
 
     export let data: PageData;
     const { form, enhance, errors, validate } = superForm(data.form, {
@@ -107,6 +107,10 @@
             focusTo?.focus();
         }
     };
+
+    $: {
+        console.log($form);
+    }
 </script>
 
 <section class="flex justify-center">
@@ -197,12 +201,12 @@
                 <Helper color="red">{$errors.opf || ''}&nbsp;</Helper>
             </div>
             <div class="grid grid-cols-2 gap-4">
-                <TextInput {form} {errors} name="inn" label="INN" bind:value={$form.inn} />
-                <TextInput {form} {errors} name="ogrn" label="OGRN" bind:value={$form.ogrn} />
+                <TextInput {errors} name="inn" label="INN" bind:value={$form.inn} />
+                <TextInput {errors} name="ogrn" label="OGRN" bind:value={$form.ogrn} />
             </div>
         {/if}
         <input type="hidden" name="opf" bind:value={$form.opf} />
-        <TextInput {form} {errors} name="address" label="Address" bind:value={$form.address} />
+        <TextInput {errors} name="address" label="Address" bind:value={$form.address} />
         <TextInput
             {form}
             {errors}
