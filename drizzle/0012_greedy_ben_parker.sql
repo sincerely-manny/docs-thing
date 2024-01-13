@@ -1,0 +1,1 @@
+ALTER TABLE "services_lib" ALTER COLUMN "title" SET NOT NULL;

@@ -14,7 +14,6 @@ export const load = (async () => {
 export const actions = {
     default: async ({ request, url }) => {
         const form = await superValidate(request, clientsInsertSchema);
-        console.log(form);
 
         if (!form.valid) {
             return fail(400, { form });

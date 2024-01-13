@@ -1,3 +1,11 @@
+<script context="module" lang="ts">
+    export type Suggestion = {
+        title: string;
+        caption?: string;
+        data?: Record<string, string>;
+    };
+</script>
+
 <script lang="ts">
     import { Listgroup, ListgroupItem, Spinner } from 'flowbite-svelte';
     import { blur } from 'svelte/transition';
@@ -5,20 +13,13 @@
     let containerDiv: HTMLDivElement;
 
     export let className: string | undefined = undefined;
-    export let value: string = '';
+    // export let value: string = '';
 
-    type Suggestion = {
-        title: string;
-        caption?: string;
-        data?: Record<string, string>;
-    };
-
-    export let getSuggestions: (query: string) => Suggestion[];
     export let onSuggestionClick: (s: Suggestion) => void;
 
     let tooltipOpened = false;
     let isFocused = false;
-    $: tooltipOpened = isFocused && value.length > 0;
+    $: tooltipOpened = isFocused;
 
     const handleFocusIn = () => (isFocused = true);
     const handleFocusOut = () => (isFocused = false);
@@ -70,9 +71,7 @@
         }
     };
 
-    let suggestions: undefined | Suggestion[] = undefined;
-
-    $: suggestions = getSuggestions(value);
+    export let suggestions: undefined | Suggestion[] = undefined;
 </script>
 
 <div
@@ -90,24 +89,25 @@
         <div
             role="tooltip"
             transition:blur={{ amount: 20, duration: 300 }}
-            class="absolute -mt-3 w-full"
+            class="absolute z-20 -mt-3 w-full"
         >
             {#if !suggestions}
                 <Listgroup>
-                    <ListgroupItem class="flex justify-center"><Spinner /></ListgroupItem>
+                    <ListgroupItem class="relative flex justify-center"><Spinner /></ListgroupItem>
                 </Listgroup>
             {:else if suggestions.length === 0}
                 <Listgroup>
-                    <ListgroupItem class="flex justify-center">No results</ListgroupItem>
+                    <ListgroupItem class="relative flex justify-center">No results</ListgroupItem>
                 </Listgroup>
             {:else}
-                <Listgroup active class="relative z-10 flex flex-col">
+                <Listgroup active class="relative flex flex-col">
                     {#each suggestions as s, i}
                         <ListgroupItem
                             on:click={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 onSuggestionClick(s);
+                                tooltipOpened = false;
                             }}
                             on:keydown={handleSuggestionKeyPress}
                             class="dropdown-list-item relative z-10 outline outline-0 ring-0 transition-colors duration-200 dark:focus:bg-gray-600 dark:focus:text-white"

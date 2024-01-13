@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { date, numeric, pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
+import { date, integer, numeric, pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 
 export const clientTypes = ['ИП', 'ООО', 'АО', 'ПАО', 'ФЛ'] as const;
@@ -61,8 +61,41 @@ export const invoices = pgTable('invoices', {
 
 export const invoicesInsertSchema = z.object({
     number: z.string().trim().min(1),
-    date: z.date(),
+    date: z.string().datetime(),
     clientId: z.string().uuid(),
+    services: z
+        .object({
+            title: z.string().trim().min(1),
+            amount: z
+                .string()
+                .transform((val, ctx) => {
+                    const parsed = parseInt(val);
+                    if (isNaN(parsed)) {
+                        ctx.addIssue({
+                            code: z.ZodIssueCode.custom,
+                            message: 'Not a number',
+                        });
+                        return z.NEVER;
+                    }
+                    return parsed;
+                })
+                .transform(String),
+            price: z
+                .string()
+                .transform((val, ctx) => {
+                    const parsed = parseFloat(val);
+                    if (isNaN(parsed)) {
+                        ctx.addIssue({
+                            code: z.ZodIssueCode.custom,
+                            message: 'Not a number',
+                        });
+                        return z.NEVER;
+                    }
+                    return parsed;
+                })
+                .transform(String),
+        })
+        .array(),
 });
 
 export const services = pgTable('services', {
@@ -70,11 +103,22 @@ export const services = pgTable('services', {
         .default(sql`gen_random_uuid()`)
         .notNull()
         .primaryKey(),
-    description: text('description'),
-    amount: numeric('amount', { precision: 20, scale: 2 }),
+    title: text('title').notNull(),
+    amount: integer('amount').default(1).notNull(),
+    price: numeric('price', { precision: 20, scale: 2 }),
     invoiceId: uuid('invoice_id')
         .references(() => invoices.id)
         .notNull(),
+    conrtactId: uuid('contract_id').references(() => conrtacts.id),
+});
+
+export const servicesLib = pgTable('services_lib', {
+    id: uuid('id')
+        .default(sql`gen_random_uuid()`)
+        .notNull()
+        .primaryKey(),
+    title: text('title').notNull(),
+    price: numeric('price', { precision: 20, scale: 2 }),
 });
 
 export const payments = pgTable('payments', {
@@ -88,4 +132,17 @@ export const payments = pgTable('payments', {
     serviceId: uuid('service_id').references(() => services.id),
 });
 
-export default { clients, invoices, payments, services };
+export const conrtacts = pgTable('contracts', {
+    id: uuid('id')
+        .default(sql`gen_random_uuid()`)
+        .notNull()
+        .primaryKey(),
+    clientId: uuid('client_id')
+        .references(() => clients.id)
+        .notNull(),
+    number: varchar('number').notNull(),
+    date: date('date').defaultNow(),
+    comment: text('comment'),
+});
+
+export default { clients, invoices, payments, services, servicesLib };

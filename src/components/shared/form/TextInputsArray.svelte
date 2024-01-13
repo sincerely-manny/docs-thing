@@ -1,22 +1,22 @@
 <script lang="ts" generics="Value extends Record<string, string>">
-    // TODO: abstract fields (title & price)
-    import TextInput from 'components/shared/form/TextInput.svelte';
-    import WithTooltip from 'components/shared/form/WithTooltip.svelte';
+    // TODO: abstract fields (title, amount, price)
+    import WithTooltip, { type Suggestion } from 'components/shared/form/WithTooltip.svelte';
+    import { Helper, FloatingLabelInput } from 'flowbite-svelte';
     import { ArrowDown, ArrowUp } from 'lucide-svelte';
     import { nanoid } from 'nanoid';
     import { cubicInOut } from 'svelte/easing';
     import { writable } from 'svelte/store';
-    import { type TransitionConfig, blur } from 'svelte/transition';
+    import { blur, type TransitionConfig } from 'svelte/transition';
     import type { ZodValidation } from 'sveltekit-superforms';
     import type { SuperForm } from 'sveltekit-superforms/client';
     import { z } from 'zod';
 
     export let errors: SuperForm<ZodValidation<z.AnyZodObject>, unknown>['errors'];
     export let name: string;
-
     export let value: Value[];
+    export let suggestions: (Suggestion[] | undefined)[];
 
-    const emptyValue = Object.fromEntries(Object.keys(value[0]).map((k) => [k, ''])) as Value;
+    const emptyValue = { ...value[0] };
 
     const inputs = writable<(Value & { key: string })[]>(
         value.map((v) => ({ ...v, key: nanoid() })),
@@ -34,7 +34,7 @@
         }
     });
 
-    const deleteEmptyServices = () => {
+    const deleteEmpty = () => {
         for (let i = 0; i < $inputs.length; i++) {
             const { title } = $inputs[i];
             if (i < $inputs.length - 1 && title.length === 0) {
@@ -45,17 +45,17 @@
         }
     };
 
-    let servicesFocus = false;
-    const handleServicesFocusIn = () => {
-        servicesFocus = true;
+    let isFocused = false;
+    const handleFocusIn = () => {
+        isFocused = true;
     };
-    const handleServicesFocusOut = () => {
-        servicesFocus = false;
+    const handleFocusOut = () => {
+        isFocused = false;
     };
     $: {
         setTimeout(() => {
-            if (!servicesFocus) {
-                deleteEmptyServices();
+            if (!isFocused) {
+                deleteEmpty();
             }
         }, 500);
     }
@@ -97,14 +97,27 @@
         $inputs[b].key = nanoid();
         [$inputs[a], $inputs[b]] = [$inputs[b], $inputs[a]];
     };
+
+    const inputErrs = (i: number, inputName: string) =>
+        $errors[name.toString()] &&
+        /* @ts-ignore */
+        $errors[name.toString()][i] &&
+        /* @ts-ignore */
+        $errors[name.toString()][i][inputName]
+            ? /* @ts-ignore */
+              $errors[name.toString()][i][inputName]
+            : false;
+
+    const handleTooltipClick = (i: number) => (suggestion: Suggestion) => {
+        ($inputs[i] as Value & { key: string; title: string }).title = suggestion.title;
+        if (suggestion.data?.price) {
+            ($inputs[i] as Value & { key: string; price: string }).price = suggestion.data.price;
+        }
+        handleInput();
+    };
 </script>
 
-<div
-    tabindex="-1"
-    on:focusin={handleServicesFocusIn}
-    on:focusout={handleServicesFocusOut}
-    on:input={handleInput}
->
+<div tabindex="-1" on:focusin={handleFocusIn} on:focusout={handleFocusOut} on:input={handleInput}>
     <p class="mb-2"><slot /></p>
     {#each $inputs as { title, price, key }, i (key)}
         <div
@@ -145,24 +158,44 @@
                 #{i + 1}
             </span>
             <WithTooltip
-                value="11"
+                bind:suggestions={suggestions[i]}
                 className="grow"
-                getSuggestions={() => [{ title: 'dasda', caption: '3211' }]}
-                onSuggestionClick={(e) => {}}
+                onSuggestionClick={handleTooltipClick(i)}
             >
-                <TextInput
-                    {errors}
-                    name={`${name}-title-${i}`}
-                    label="Title"
-                    bind:value={$inputs[i].title}
-                />
+                <div>
+                    <FloatingLabelInput
+                        type="text"
+                        name={`${name}-title-${i}`}
+                        bind:value={$inputs[i].title}
+                        color={inputErrs(i, 'title') ? 'red' : 'base'}
+                    >
+                        Title
+                    </FloatingLabelInput>
+                    <Helper color="red">{inputErrs(i, 'title') || ''}&nbsp;</Helper>
+                </div>
             </WithTooltip>
-            <TextInput
-                {errors}
-                name={`${name}-price-${i}`}
-                label="Price"
-                bind:value={$inputs[i].price}
-            />
+            <div class="w-12">
+                <FloatingLabelInput
+                    type="text"
+                    name={`${name}-amount-${i}`}
+                    bind:value={$inputs[i].amount}
+                    color={inputErrs(i, 'amount') ? 'red' : 'base'}
+                >
+                    Amount
+                </FloatingLabelInput>
+                <Helper color="red">{inputErrs(i, 'amount') || ''}&nbsp;</Helper>
+            </div>
+            <div class="w-20">
+                <FloatingLabelInput
+                    type="text"
+                    name={`${name}-price-${i}`}
+                    bind:value={$inputs[i].price}
+                    color={inputErrs(i, 'price') ? 'red' : 'base'}
+                >
+                    Price
+                </FloatingLabelInput>
+                <Helper color="red">{inputErrs(i, 'price') || ''}&nbsp;</Helper>
+            </div>
             <span>₽</span>
         </div>
     {/each}

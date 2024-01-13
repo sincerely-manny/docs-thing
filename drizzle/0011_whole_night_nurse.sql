@@ -1,0 +1,1 @@
+ALTER TABLE "services" ALTER COLUMN "amount" SET DEFAULT 1;

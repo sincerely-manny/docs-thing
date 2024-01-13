@@ -35,7 +35,7 @@
 
     let suggestedOrgs: ResDTO | null = null;
     const setSuggestedOrgs = debounce(async () => {
-        suggestedOrgs = await (await fetch(`/api/search-organisation?query=${$form.name}`)).json();
+        suggestedOrgs = await (await fetch(`/api/egrul?query=${$form.name}`)).json();
     }, 500);
     $: $form.name &&
         $form.name.length >= 2 &&
