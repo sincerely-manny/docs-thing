@@ -64,7 +64,11 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
         //         'Content-Disposition': `${downloadOrView.view}; filename=${filename}.png`,
         //     },
         // });
-        PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
+        // PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
+        PdfJs.GlobalWorkerOptions.workerSrc = new URL(
+            'pdfjs-dist/legacy/build/pdf.worker.js',
+            import.meta.url,
+        ).toString();
         const loadingTask = PdfJs.getDocument(pdfBytes);
         const pdfProxy = await loadingTask.promise;
         const page = await pdfProxy.getPage(1);
