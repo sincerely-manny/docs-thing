@@ -2,6 +2,7 @@ import type { RequestHandler } from './$types';
 import { PDFDocument, PDFFont, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import { createInvoice } from '$lib/pdf/invoice';
+import { convert } from 'pdf-img-convert';
 
 export const GET: RequestHandler = async ({ fetch: localFetch }) => {
     const { pdfDoc, drawClientInfo, drawHeader, drawSummary } = await createInvoice(localFetch);
@@ -25,6 +26,9 @@ export const GET: RequestHandler = async ({ fetch: localFetch }) => {
         download: 'attachment',
         view: 'inline',
     };
+
+    // const preview = await convert(pdfBytes, { width: 300, base64: true });
+
     return new Response(pdfBytes, {
         headers: {
             'Content-Type': 'application/pdf',
