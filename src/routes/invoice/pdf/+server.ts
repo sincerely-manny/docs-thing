@@ -1,10 +1,9 @@
-import { createInvoice } from '$lib/pdf/invoice';
-import type { RequestHandler } from './$types';
-import { convert } from 'pdf-img-convert';
 import db from '$lib/db/client';
 import { clients, invoices, services } from '$lib/db/schema';
+import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
-import { dateToString } from '$lib/pdf/utils';
+import { convert } from 'pdf-img-convert';
+import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
     const invoiceId = url.searchParams.get('invoiceId');
