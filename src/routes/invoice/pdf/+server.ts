@@ -4,6 +4,7 @@ import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
 // import { convert } from 'pdf-img-convert';
 import * as PdfJs from 'pdfjs-dist';
+import pdfJSWorkerURL from 'pdfjs-dist/build/pdf.worker?url';
 import Canvas from 'canvas';
 import type { RequestHandler } from './$types';
 
@@ -63,6 +64,7 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
         //         'Content-Disposition': `${downloadOrView.view}; filename=${filename}.png`,
         //     },
         // });
+        PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
         const loadingTask = PdfJs.getDocument(pdfBytes);
         const pdfProxy = await loadingTask.promise;
         const page = await pdfProxy.getPage(1);
