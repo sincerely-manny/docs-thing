@@ -2,7 +2,9 @@ import db from '$lib/db/client';
 import { clients, invoices, services } from '$lib/db/schema';
 import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
-import { convert } from 'pdf-img-convert';
+// import { convert } from 'pdf-img-convert';
+import * as PdfJs from 'pdfjs-dist';
+import Canvas from 'canvas';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
@@ -52,12 +54,30 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
     )})`;
 
     if (returnType === 'image') {
-        const preview = await convert(pdfBytes, { base64: true, scale: 1.5 });
-        const file = Buffer.from(preview[0] as string, 'base64');
-        return new Response(file, {
+        // const preview = await convert(pdfBytes, { base64: true, scale: 1.5 });
+        // const file = Buffer.from(preview[0] as string, 'base64');
+        // return new Response(file, {
+        //     headers: {
+        //         'Content-Type': 'image/png',
+        //         'Content-Length': file.length.toString(),
+        //         'Content-Disposition': `${downloadOrView.view}; filename=${filename}.png`,
+        //     },
+        // });
+        const loadingTask = PdfJs.getDocument(pdfBytes);
+        const pdfProxy = await loadingTask.promise;
+        const page = await pdfProxy.getPage(1);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = Canvas.createCanvas(viewport.width, viewport.height);
+        const ctx = canvas.getContext('2d');
+        await page.render({
+            canvasContext: ctx as unknown as CanvasRenderingContext2D,
+            viewport,
+        }).promise;
+        const buffer = canvas.toBuffer();
+        return new Response(buffer, {
             headers: {
                 'Content-Type': 'image/png',
-                'Content-Length': file.length.toString(),
+                'Content-Length': buffer.length.toString(),
                 'Content-Disposition': `${downloadOrView.view}; filename=${filename}.png`,
             },
         });
