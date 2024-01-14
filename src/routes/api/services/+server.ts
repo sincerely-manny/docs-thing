@@ -18,13 +18,13 @@ export const GET: RequestHandler = async ({ url }) => {
             .from(servicesLib)
             .where(ilike(servicesLib.title, `%${query}%`))
             .limit(5);
-        console.log(suggested);
     } catch (e) {
         console.error(e);
     }
 
     if (suggested) {
-        return new Response(JSON.stringify(suggested));
+        const res = suggested.map(({ title, price }) => ({ title, data: { price } }));
+        return new Response(JSON.stringify(res));
     }
 
     throw error(500, 'Something went wrong');

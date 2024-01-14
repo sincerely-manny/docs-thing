@@ -1,8 +1,8 @@
 import db from '$lib/db/client';
-import { invoicesInsertSchema } from '$lib/db/schema';
-import { type Actions } from '@sveltejs/kit';
+import { invoices, invoicesInsertSchema, services, servicesLib } from '$lib/db/schema';
+import { fail, type Actions } from '@sveltejs/kit';
+import { eq } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms/server';
-import type { z } from 'zod';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
@@ -14,9 +14,13 @@ export const load = (async ({ url }) => {
     const currentYear = new Date().getFullYear;
 
     const latestInvoice = await db.query.invoices.findFirst({
-        where: (invoices, { between }) =>
-            between(invoices.date, currentYear + '-01-01', currentYear + '-12-31'),
-        orderBy: (invoices, { desc }) => [desc(invoices.number)],
+        // where: {
+        //     date: {
+        //         gte: `${currentYear}-01-01`,
+        //         lte: `${currentYear}-12-31`,
+        //     },
+        // },
+        orderBy: (invoices, { desc }) => [desc(invoices.date)],
     });
 
     const formdata = {
@@ -35,6 +39,43 @@ export const actions = {
     default: async ({ request }) => {
         const form = await superValidate(request, invoicesInsertSchema);
         console.log(form.data, JSON.stringify(form.errors));
+        if (!form.valid) {
+            return fail(400, { form });
+        }
+        const { number, date, clientId, services: formServices } = form.data;
+
+        // inserting invoice
+        const invoice = await db
+            .insert(invoices)
+            .values({
+                number,
+                date,
+                clientId,
+            })
+            .returning();
+        for (const service of formServices) {
+            const { title, amount, price } = service;
+
+            // inserting services
+            await db.insert(services).values({
+                invoiceId: invoice[0].id,
+                title,
+                amount: parseInt(amount),
+                price: price,
+            });
+
+            // inserting servicesLib
+            const existing = await db.query.servicesLib.findFirst({
+                where: eq(servicesLib.title, service.title),
+            });
+            if (!existing) {
+                await db.insert(servicesLib).values({
+                    title,
+                    price,
+                });
+            }
+        }
+
         return { form };
     },
 } satisfies Actions;
