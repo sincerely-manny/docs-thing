@@ -3,8 +3,9 @@ import { clients, invoices, services } from '$lib/db/schema';
 import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
 // import { convert } from 'pdf-img-convert';
-import * as PdfJs from 'pdfjs-dist';
-import pdfJSWorkerURL from 'pdfjs-dist/build/pdf.worker?url';
+// import * as PdfJs from 'pdfjs-dist/';
+import pdfJSWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.mjs?inline';
+// import pdfjsWorker from "pdfjs-dist/webpack.mjs";
 import Canvas from 'canvas';
 import type { RequestHandler } from './$types';
 
@@ -64,11 +65,15 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
         //         'Content-Disposition': `${downloadOrView.view}; filename=${filename}.png`,
         //     },
         // });
+        const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
         // PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
-        PdfJs.GlobalWorkerOptions.workerSrc = new URL(
-            'pdfjs-dist/legacy/build/pdf.worker.js',
-            import.meta.url,
-        ).toString();
+        // const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+        PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
+
+        // PdfJs.GlobalWorkerOptions.workerSrc = new URL(
+        //     'pdfjs-dist/legacy/build/pdf.worker.js',
+        //     import.meta.url,
+        // ).toString();
         const loadingTask = PdfJs.getDocument(pdfBytes);
         const pdfProxy = await loadingTask.promise;
         const page = await pdfProxy.getPage(1);
