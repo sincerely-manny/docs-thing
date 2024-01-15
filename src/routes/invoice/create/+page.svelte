@@ -34,7 +34,7 @@
         if (q.length === 0) {
             return [];
         }
-        const res = (await (await fetch(`/api/services?query=${q}`)).json()) as
+        const res = (await (await fetch(`/json/services?query=${q}`)).json()) as
             | InferSelectModel<typeof servicesLib>[]
             | undefined;
         if (res) {

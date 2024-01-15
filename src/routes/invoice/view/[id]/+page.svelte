@@ -8,11 +8,7 @@
 
 <div class="flex justify-center">
     <div class="relative inline-block h-[700px] overflow-hidden rounded">
-        <img
-            src={`https://pdf-to-img-micro.vercel.app/api?invoiceId=${data.id}&ppi=72`}
-            alt={data.id}
-            class="h-full object-fill"
-        />
+        <img src={`/api?invoiceId=${data.id}&ppi=72`} alt={data.id} class="h-full object-fill" />
         <div class="absolute bottom-3 left-0 flex w-full justify-center">
             <a href={`/invoice/pdf?invoiceId=${data.id}`} target="_blank">
                 <Button class="flex gap-1"><Download /> Download PDF</Button>
