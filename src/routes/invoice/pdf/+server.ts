@@ -3,7 +3,7 @@ import { clients, invoices, services } from '$lib/db/schema';
 import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
 // import { convert } from 'pdf-img-convert';
-import * as PdfJs from 'pdfjs-dist/';
+import * as PdfJs from 'pdfjs-dist';
 import pdfJSWorkerURL from 'pdfjs-dist/build/pdf.worker.mjs?inline';
 // import pdfjsWorker from "pdfjs-dist/webpack.mjs";
 import Canvas from 'canvas';
@@ -68,7 +68,7 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
         // const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
         // PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
         // const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-        PdfJs.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+        PdfJs.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
 
         // PdfJs.GlobalWorkerOptions.workerSrc = new URL(
         //     'pdfjs-dist/legacy/build/pdf.worker.js',
