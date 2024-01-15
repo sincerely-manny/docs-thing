@@ -1,7 +1,7 @@
 import db from '$lib/db/client';
 import { invoices, invoicesInsertSchema, services, servicesLib } from '$lib/db/schema';
 import { fail, type Actions } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
+import { eq, max } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms/server';
 import type { PageServerLoad } from './$types';
 
@@ -13,18 +13,20 @@ export const load = (async ({ url }) => {
 
     const currentYear = new Date().getFullYear;
 
-    const latestInvoice = await db.query.invoices.findFirst({
-        // where: {
-        //     date: {
-        //         gte: `${currentYear}-01-01`,
-        //         lte: `${currentYear}-12-31`,
-        //     },
-        // },
-        orderBy: (invoices, { desc }) => [desc(invoices.date)],
-    });
+    // const latestInvoice = await db.query.invoices.findFirst({
+    //     // where: {
+    //     //     date: {
+    //     //         gte: `${currentYear}-01-01`,
+    //     //         lte: `${currentYear}-12-31`,
+    //     //     },
+    //     // },
+    //     orderBy: (invoices, { desc }) => [desc(invoices.date)],
+    // });
+    const m = await db.select({ value: max(invoices.number) }).from(invoices);
+    const maxNumber = m[0]?.value || '0';
 
     const formdata = {
-        number: (latestInvoice?.number ? parseInt(latestInvoice.number) + 1 : 1).toString(),
+        number: (parseInt(maxNumber) + 1).toString(),
         date: new Date().toISOString(),
         clientId,
         services: [{ title: '', amount: '1', price: '0' }],
@@ -32,7 +34,7 @@ export const load = (async ({ url }) => {
 
     const form = await superValidate(formdata, invoicesInsertSchema);
 
-    return { form, clients, latestNumber: latestInvoice?.number };
+    return { form, clients };
 }) satisfies PageServerLoad;
 
 export const actions = {
