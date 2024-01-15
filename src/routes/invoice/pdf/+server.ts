@@ -68,8 +68,11 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
         // const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
         // PdfJs.GlobalWorkerOptions.workerSrc = pdfJSWorkerURL;
         // const PdfJs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-        PdfJs.GlobalWorkerOptions.workerSrc = './pdf.worker.mjs';
-
+        PdfJs.GlobalWorkerOptions.workerSrc = new URL(
+            '//pdf.worker.js',
+            import.meta.url,
+        ).toString();
+        console.log(PdfJs.GlobalWorkerOptions.workerSrc);
         // PdfJs.GlobalWorkerOptions.workerSrc = new URL(
         //     'pdfjs-dist/legacy/build/pdf.worker.js',
         //     import.meta.url,
