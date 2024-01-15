@@ -4,7 +4,7 @@ import { createInvoice } from '$lib/pdf/invoice';
 import { eq } from 'drizzle-orm';
 // import { convert } from 'pdf-img-convert';
 // import * as PdfJs from 'pdfjs-dist/';
-import pdfJSWorkerURL from 'pdfjs-dist/legacy/build/pdf.worker.mjs?inline';
+import pdfJSWorkerURL from 'pdfjs-dist/build/pdf.worker.mjs?inline';
 // import pdfjsWorker from "pdfjs-dist/webpack.mjs";
 import Canvas from 'canvas';
 import type { RequestHandler } from './$types';
