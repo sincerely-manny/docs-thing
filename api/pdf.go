@@ -46,7 +46,7 @@ type Invoice struct {
 }
 
 func localPath(path string) string {
-	return fmt.Sprintf("%s/api/assets/%s", os.Getenv("PWD"), path)
+	return fmt.Sprintf("%s/assets/%s", os.Getenv("PWD"), path)
 }
 
 func HandlerPdf(w http.ResponseWriter, r *http.Request) {
