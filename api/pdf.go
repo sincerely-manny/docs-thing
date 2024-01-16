@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/johnfercher/maroto/v2"
@@ -33,10 +34,14 @@ type Invoice struct {
 	Client         string    `json:"client"`
 	Total          int       `json:"total"`
 	TotalFormatted string    `json:"totalFormatted"`
+	TotalWords     string    `json:"totalWords"`
 	Services       []struct {
-		Title  string `json:"title"`
-		Amount int    `json:"amount"`
-		Price  int    `json:"price"`
+		Title          string `json:"title"`
+		Amount         int    `json:"amount"`
+		Price          int    `json:"price"`
+		PriceFormatted string `json:"priceFormatted"`
+		Total          int    `json:"total"`
+		TotalFormatted string `json:"totalFormatted"`
 	} `json:"services"`
 }
 
@@ -244,6 +249,242 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 			BorderColor: &props.BlackColor,
 			BorderType:  border.Full,
 		}),
+	)
+
+	doc.AddRow(10)
+
+	doc.AddRow(5,
+		text.NewCol(12, "Дополнение:"),
+	)
+	doc.AddRow(5)
+	doc.AddRow(5,
+		text.NewCol(
+			6,
+			"Наименование",
+			props.Text{
+				Style: fontstyle.Bold,
+				Left:  2,
+				Right: 2,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		text.NewCol(
+			2,
+			"Кол-во",
+			props.Text{
+				Style: fontstyle.Bold,
+				Left:  2,
+				Right: 2,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		text.NewCol(
+			2,
+			"Цена",
+			props.Text{
+				Style: fontstyle.Bold,
+				Left:  2,
+				Right: 2,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		text.NewCol(
+			2,
+			"Сумма",
+			props.Text{
+				Style: fontstyle.Bold,
+				Left:  2,
+				Right: 2,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+	)
+
+	for _, v := range invoice.Services {
+		// TODO: dynamic line height
+		doc.AddRow(5,
+			text.NewCol(
+				6,
+				v.Title,
+				props.Text{
+					Left:  2,
+					Right: 2,
+				}).WithStyle(
+				&props.Cell{
+					BorderType: border.Full,
+				},
+			),
+			text.NewCol(
+				2,
+				strconv.Itoa(v.Amount),
+				props.Text{
+					Left:  2,
+					Right: 2,
+				}).WithStyle(
+				&props.Cell{
+					BorderType: border.Full,
+				},
+			),
+			text.NewCol(
+				2,
+				v.PriceFormatted,
+				props.Text{
+					Left:  2,
+					Right: 2,
+				}).WithStyle(
+				&props.Cell{
+					BorderType: border.Full,
+				},
+			),
+			text.NewCol(
+				2,
+				v.TotalFormatted,
+				props.Text{
+					Left:  2,
+					Right: 2,
+				}).WithStyle(
+				&props.Cell{
+					BorderType: border.Full,
+				},
+			),
+		)
+	}
+
+	doc.AddRow(5,
+		col.New(6).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+	)
+
+	doc.AddRow(5,
+		text.NewCol(
+			6,
+			"НДС не облагается",
+			props.Text{
+				Left:  2,
+				Right: 2,
+				Style: fontstyle.Bold,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+	)
+	doc.AddRow(5,
+		text.NewCol(
+			6,
+			"Итого к оплате:",
+			props.Text{
+				Left:  2,
+				Right: 2,
+				Style: fontstyle.Bold,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		col.New(2).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+		text.NewCol(
+			2,
+			invoice.TotalFormatted,
+			props.Text{
+				Left:  2,
+				Right: 2,
+				Style: fontstyle.Bold,
+			}).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+	)
+
+	doc.AddRow(5,
+		text.NewCol(
+			12,
+			invoice.TotalWords,
+			props.Text{
+				Align: align.Center,
+				Style: fontstyle.Italic,
+				Size:  8,
+				Top:   1,
+			},
+		).WithStyle(
+			&props.Cell{
+				BorderType: border.Full,
+			},
+		),
+	)
+
+	doc.AddRow(20)
+
+	doc.AddRow(4,
+		text.NewCol(7,
+			"Председатель коллегии",
+			props.Text{Align: align.Right},
+		),
+		col.New(3),
+		text.NewCol(2,
+			"/ Воробьева И.Б. /",
+		),
+	)
+	doc.AddRow(0,
+		col.New(7),
+		line.NewCol(3, props.Line{
+			SizePercent: 100,
+		}),
+	)
+	doc.AddRow(5,
+		col.New(7),
+		text.NewCol(3, "м.п.", props.Text{Align: align.Center, Size: 6}),
 	)
 
 	genrated, err := doc.Generate()

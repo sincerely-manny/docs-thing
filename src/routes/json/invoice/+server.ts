@@ -4,6 +4,7 @@ import { error } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from './$types';
 import { dateToString, formatCurrency } from '$lib/pdf/utils';
+import { format } from '@vicimpa/rubles';
 
 export const GET: RequestHandler = async ({ url }) => {
     const invoiceId = url.searchParams.get('invoiceId');
@@ -37,10 +38,16 @@ export const GET: RequestHandler = async ({ url }) => {
         client: `${invoice.client?.opf} «${invoice.client?.name}»`,
         total,
         totalFormatted: formatCurrency(total),
+        totalWords: format(total),
         services: invoice.services.map((service) => ({
             title: service?.title || '',
             amount: service?.amount || 1,
             price: parseFloat(service?.price || ''),
+            priceFormatted: formatCurrency(parseFloat(service?.price || '')),
+            total: parseFloat(service?.price || '') * Number(service?.amount || 1),
+            totalFormatted: formatCurrency(
+                parseFloat(service?.price || '') * Number(service?.amount || 1),
+            ),
         })),
     };
 
