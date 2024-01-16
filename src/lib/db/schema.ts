@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { date, integer, numeric, pgEnum, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
+import { date, integer, numeric, pgTable, text, uuid, varchar } from 'drizzle-orm/pg-core';
 import { z } from 'zod';
 
 export const clientTypes = ['ИП', 'ООО', 'АО', 'ПАО', 'ФЛ'] as const;

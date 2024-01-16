@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gen2brain/go-fitz"
 )
 
-func Handler(w http.ResponseWriter, r *http.Request) {
+func HandlerPng(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -29,7 +30,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Get("https://docs-thing.vercel.app/invoice/pdf?invoiceId=" + invoiceId)
+	resp, err := http.Get(os.Getenv("BASE_URL") + "/invoice/pdf?invoiceId=" + invoiceId)
 	if err != nil {
 		panic(err)
 	}
