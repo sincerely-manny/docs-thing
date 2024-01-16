@@ -16,7 +16,8 @@
             class="flex h-full items-center justify-center object-fill"
         />
         <div class="absolute bottom-3 left-0 flex w-full justify-center">
-            <a href={`/invoice/pdf?invoiceId=${data.id}`} target="_blank">
+            <!-- <a href={`/invoice/pdf?invoiceId=${data.id}`} target="_blank"> -->
+            <a href={`/api/pdf?invoiceId=${data.id}`} target="_blank">
                 <Button class="flex gap-1"><Download /> Download PDF</Button>
             </a>
         </div>
