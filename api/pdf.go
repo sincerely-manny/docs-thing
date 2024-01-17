@@ -50,6 +50,7 @@ func localPath(path string) string {
 }
 
 func HandlerPdf(w http.ResponseWriter, r *http.Request) {
+	fmt.Println(os.Executable())
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -59,7 +60,9 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	resp, err := http.Get(os.Getenv("BASE_URL") + "/json/invoice?invoiceId=" + invoiceId)
+	fmt.Println("VERCEL_URL:")
+	fmt.Println(os.Getenv("VERCEL_URL"))
+	resp, err := http.Get("http://" + os.Getenv("VERCEL_URL") + "/json/invoice?invoiceId=" + invoiceId)
 	if err != nil {
 		panic(err)
 	}

@@ -30,7 +30,7 @@ func HandlerPng(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Get(os.Getenv("BASE_URL") + "/invoice/pdf?invoiceId=" + invoiceId)
+	resp, err := http.Get(os.Getenv("VERCEL_URL") + "/invoice/pdf?invoiceId=" + invoiceId)
 	if err != nil {
 		panic(err)
 	}
