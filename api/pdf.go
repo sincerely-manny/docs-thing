@@ -1,15 +1,11 @@
 package handler
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
-	"image"
-	"image/png"
 	"net/http"
-	"os"
 	"strconv"
-	"time"
+	"web/pdf-to-img-micro/data"
+	"web/pdf-to-img-micro/static"
 
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
@@ -19,7 +15,6 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/config"
 	"github.com/johnfercher/maroto/v2/pkg/consts/align"
 	"github.com/johnfercher/maroto/v2/pkg/consts/border"
-	"github.com/johnfercher/maroto/v2/pkg/consts/extension"
 	"github.com/johnfercher/maroto/v2/pkg/consts/fontstyle"
 	"github.com/johnfercher/maroto/v2/pkg/consts/orientation"
 	"github.com/johnfercher/maroto/v2/pkg/consts/pagesize"
@@ -27,30 +22,7 @@ import (
 	"github.com/johnfercher/maroto/v2/pkg/repository"
 )
 
-type Invoice struct {
-	Number         string    `json:"number"`
-	Date           time.Time `json:"date"`
-	DateString     string    `json:"dateString"`
-	Client         string    `json:"client"`
-	Total          int       `json:"total"`
-	TotalFormatted string    `json:"totalFormatted"`
-	TotalWords     string    `json:"totalWords"`
-	Services       []struct {
-		Title          string `json:"title"`
-		Amount         int    `json:"amount"`
-		Price          int    `json:"price"`
-		PriceFormatted string `json:"priceFormatted"`
-		Total          int    `json:"total"`
-		TotalFormatted string `json:"totalFormatted"`
-	} `json:"services"`
-}
-
-func localPath(path string) string {
-	return fmt.Sprintf("%s/assets/%s", os.Getenv("PWD"), path)
-}
-
 func HandlerPdf(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(os.Executable())
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
@@ -60,29 +32,16 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println("VERCEL_URL:")
-	fmt.Println(os.Getenv("VERCEL_URL"))
-	resp, err := http.Get("http://" + os.Getenv("VERCEL_URL") + "/json/invoice?invoiceId=" + invoiceId)
+	invoice, err := data.GetInvoice(invoiceId)
 	if err != nil {
 		panic(err)
 	}
-	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Error fetching invoice data", http.StatusBadRequest)
-		return
-	}
-
-	var invoice Invoice
-	if err := json.NewDecoder(resp.Body).Decode(&invoice); err != nil {
-		http.Error(w, "Error decoding JSON", http.StatusBadRequest)
-		return
-	}
-	defer resp.Body.Close()
 
 	customFonts, err := repository.New().
-		AddUTF8Font("PlayfairDisplay", fontstyle.Normal, localPath("fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.Bold, localPath("fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.Italic, localPath("fonts/PlayfairDisplay/PlayfairDisplay-Italic.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.BoldItalic, localPath("fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Normal, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Bold, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Italic, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Italic.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.BoldItalic, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf")).
 		Load()
 	if err != nil {
 		panic(err)
@@ -105,22 +64,8 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 
 	doc := maroto.New(cfg)
 
-	file, err := os.Open(localPath("img/logo.png"))
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-	img, _, err := image.Decode(file)
-	if err != nil {
-		panic(err)
-	}
-	buf := new(bytes.Buffer)
-	err = png.Encode(buf, img)
-	if err != nil {
-		panic(err)
-	}
 	doc.AddRow(35,
-		mImage.NewFromBytesCol(4, buf.Bytes(), extension.Png, props.Rect{
+		mImage.NewFromFileCol(4, static.Get("img/logo.png"), props.Rect{
 			Left:    0,
 			Top:     0,
 			Percent: 80,
