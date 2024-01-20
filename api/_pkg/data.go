@@ -3,6 +3,7 @@ package _pgk
 import (
 	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 	"os"
 	"time"
@@ -33,6 +34,9 @@ func GetInvoice(id string) (Invoice, error) {
 		return invoice, err
 	}
 	if resp.StatusCode != http.StatusOK {
+		log.Println("Error getting invoice")
+		log.Println(resp.StatusCode)
+		log.Println("http://" + os.Getenv("VERCEL_URL") + "/json/invoice?invoiceId=" + id)
 		return invoice, errors.New("Error getting invoice")
 	}
 
