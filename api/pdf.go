@@ -442,7 +442,7 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/pdf")
-	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s.pdf", invoice.Number))
+	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=%s.pdf", invoice.Number))
 	w.Write(bytes)
 	return
 }
