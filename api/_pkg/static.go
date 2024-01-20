@@ -1,4 +1,4 @@
-package static
+package _pgk
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Get(url string) string {
+func GetStatic(url string) string {
 	s := strings.Split(url, "/")
 	var filename string
 	if len(s) > 0 {

@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"web/pdf-to-img-micro/data"
-	"web/pdf-to-img-micro/static"
+	utils "web/pdf-to-img-micro/_pkg"
 
 	"github.com/johnfercher/maroto/v2"
 	"github.com/johnfercher/maroto/v2/pkg/components/col"
@@ -32,16 +31,16 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	invoice, err := data.GetInvoice(invoiceId)
+	invoice, err := utils.GetInvoice(invoiceId)
 	if err != nil {
 		panic(err)
 	}
 
 	customFonts, err := repository.New().
-		AddUTF8Font("PlayfairDisplay", fontstyle.Normal, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.Bold, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.Italic, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-Italic.ttf")).
-		AddUTF8Font("PlayfairDisplay", fontstyle.BoldItalic, static.Get("fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Normal, utils.GetStatic("fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Bold, utils.GetStatic("fonts/PlayfairDisplay/PlayfairDisplay-Bold.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.Italic, utils.GetStatic("fonts/PlayfairDisplay/PlayfairDisplay-Italic.ttf")).
+		AddUTF8Font("PlayfairDisplay", fontstyle.BoldItalic, utils.GetStatic("fonts/PlayfairDisplay/PlayfairDisplay-BoldItalic.ttf")).
 		Load()
 	if err != nil {
 		panic(err)
@@ -65,7 +64,7 @@ func HandlerPdf(w http.ResponseWriter, r *http.Request) {
 	doc := maroto.New(cfg)
 
 	doc.AddRow(35,
-		mImage.NewFromFileCol(4, static.Get("img/logo.png"), props.Rect{
+		mImage.NewFromFileCol(4, utils.GetStatic("img/logo.png"), props.Rect{
 			Left:    0,
 			Top:     0,
 			Percent: 80,

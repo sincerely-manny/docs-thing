@@ -1,4 +1,4 @@
-package data
+package _pgk
 
 import (
 	"encoding/json"
