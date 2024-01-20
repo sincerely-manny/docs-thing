@@ -29,7 +29,7 @@ type Invoice struct {
 
 func GetInvoice(id string) (Invoice, error) {
 	var invoice Invoice
-	resp, err := http.Get("http://" + os.Getenv("VERCEL_URL") + "/json/invoice?invoiceId=" + id)
+	resp, err := http.Get("https://docs-thing.vercel.app/json/invoice?invoiceId=" + id)
 	if err != nil {
 		return invoice, err
 	}
