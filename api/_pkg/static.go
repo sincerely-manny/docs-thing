@@ -23,7 +23,7 @@ func GetStatic(url string) string {
 	defer newFile.Close()
 
 	// Download the file from the URL and save it to the new file.
-	fontresp, err := http.Get("http://" + os.Getenv("VERCEL_URL") + "/" + url)
+	fontresp, err := http.Get(os.Getenv("VERCEL_URL") + "/" + url)
 	if err != nil {
 		panic(err)
 	}
