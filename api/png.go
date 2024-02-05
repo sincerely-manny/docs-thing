@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"bytes"
-	"io"
+	"fmt"
 	"net/http"
-	"os"
 	"strconv"
+
+	utils "web/pdf-to-img-micro/_pkg"
 
 	"github.com/gen2brain/go-fitz"
 )
@@ -24,21 +24,19 @@ func HandlerPng(w http.ResponseWriter, r *http.Request) {
 	if ppi == "" {
 		ppi = "72"
 	}
-	ppiInt, err := strconv.ParseFloat(ppi, 10)
+	ppiInt, err := strconv.ParseFloat(ppi, 32)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	resp, err := http.Get(os.Getenv("BASE_URL") + "/invoice/pdf?invoiceId=" + invoiceId)
+	invoiceBytes, err := utils.InvoicePdf(invoiceId)
 	if err != nil {
-		panic(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	content, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	doc, err := fitz.NewFromReader(bytes.NewBuffer(content))
+
+	doc, err := fitz.NewFromMemory(invoiceBytes)
 	if err != nil {
 		panic(err)
 	}
@@ -52,7 +50,7 @@ func HandlerPng(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "image/png")
 	w.Header().Set("Content-Length", strconv.Itoa(len(pngBytes)))
 	w.Header().Set("Cache-Control", "public, max-age=7776000")
-	w.Header().Set("Content-Disposition", "inline; filename=\"invoice.png\"")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=invoice_%s.pdf", invoiceId))
 	w.WriteHeader(http.StatusOK)
 	w.Write(pngBytes)
 }

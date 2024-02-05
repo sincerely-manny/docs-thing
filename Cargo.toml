@@ -1,0 +1,33 @@
+[package]
+name = "pdf-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1", features = ["macros"] }
+serde_json = { version = "1", features = ["raw_value"] }
+genpdf = { version = "0.2.0", features = ["hyphenation", "image", "images"] }
+# Documentation: https://docs.rs/vercel_runtime/latest/vercel_runtime
+vercel_runtime = { version = "1.1.0" }
+url = "2.5.0"
+reqwest = { version = "0.11.24", features = ["json"] }
+serde = { version = "1.0.196", features = ["derive"] }
+printpdf = "0.7.0"
+
+# You can specify a library for shared logic here (optional)
+# [lib]
+# path = "src-rs/lib.rs"
+
+# Each handler has to be specified as [[bin]]
+[[bin]]
+name = "test"
+path = "api/test.rs"
+
+# Note that you need to provide unique names for each binary:
+# [[bin]]
+# name = "user-id"
+# path = "api/user/[id].rs"
+#
+# [[bin]]
+# name = "group-id"
+# path = "api/group/[id].rs"
