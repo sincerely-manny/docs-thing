@@ -15,7 +15,7 @@ func HandlerPng(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	invoiceId := r.URL.Query().Get("invoiceId")
+	invoiceId := r.URL.Query().Get("invoice_id")
 	if invoiceId == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		return
