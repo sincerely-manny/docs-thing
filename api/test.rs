@@ -70,8 +70,9 @@ fn pdf() -> Vec<u8> {
         PdfDocument::new("PDF_Document_title", Mm(210.0), Mm(297.0), "Layer 1");
     let current_layer = doc.get_page(page1).get_layer(layer1);
 
-    let mut font_reader =
-        std::io::Cursor::new(include_bytes!("/Users/kirillserebrannyy/Sites/docs-thing/static/fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf").as_ref());
+    let mut font_reader = std::io::Cursor::new(
+        include_bytes!("../static/fonts/PlayfairDisplay/PlayfairDisplay-Regular.ttf").as_ref(),
+    );
 
     let font = doc.add_external_font(&mut font_reader).unwrap();
 
