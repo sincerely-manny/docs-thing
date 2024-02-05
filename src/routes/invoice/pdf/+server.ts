@@ -29,7 +29,10 @@ export const GET: RequestHandler = async ({ fetch: localFetch, url }) => {
     await drawHeader({ number: invoice.number, date: new Date(invoice.date || '') });
     await drawClientInfo({
         client: `${invoice.client?.opf}\n«${invoice.client?.name}»`,
-        total: 30000,
+        total: invoice.services.reduce(
+            (acc, service) => acc + parseFloat(service?.price || '') * (service?.amount || 1),
+            0,
+        ),
     });
     await drawSummary({
         services: invoice.services.map((service) => ({

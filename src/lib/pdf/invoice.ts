@@ -15,21 +15,29 @@ export async function createInvoice(
         const logoImage = await pdfDoc.embedPng(logoBytes);
         const logoDimensions = logoImage.scale(0.3);
 
+        const logoScale = 0.425;
+
         page.drawImage(logoImage, {
             x: paddings.left,
-            y: paddings.top - logoDimensions.height,
-            width: logoDimensions.width,
-            height: logoDimensions.height,
+            y: paddings.top - logoDimensions.height * logoScale,
+            width: logoDimensions.width * logoScale,
+            height: logoDimensions.height * logoScale,
             opacity: 1,
         });
 
-        page.moveTo(paddings.left + logoDimensions.width + cm(2), paddings.top - fontSizes.lg);
+        page.moveTo(
+            paddings.left + logoDimensions.width * logoScale + cm(2),
+            paddings.top - fontSizes.lg,
+        );
         page.drawText('Коллегия\nАдвокатов\nСанкт-Петербурга', {
             size: fontSizes.lg,
             lineHeight: fontSizes.lg * 1.5,
             font: italic,
         });
-        page.moveTo(paddings.left + logoDimensions.width + cm(7.5), paddings.top - fontSizes.xl);
+        page.moveTo(
+            paddings.left + logoDimensions.width * logoScale + cm(7.5),
+            paddings.top - fontSizes.xl,
+        );
         page.drawText('Бизнес-коллегия', {
             size: fontSizes.xl,
             font: italic,
