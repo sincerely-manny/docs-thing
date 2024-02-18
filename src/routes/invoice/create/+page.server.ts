@@ -3,6 +3,7 @@ import { invoices, invoicesInsertSchema, services, servicesLib } from '$lib/db/s
 import { fail, type Actions } from '@sveltejs/kit';
 import { eq, max } from 'drizzle-orm';
 import { superValidate } from 'sveltekit-superforms/server';
+import { zod } from 'sveltekit-superforms/adapters';
 import type { PageServerLoad } from './$types';
 
 export const load = (async ({ url }) => {
@@ -32,14 +33,14 @@ export const load = (async ({ url }) => {
         services: [{ title: '', amount: '1', price: '0' }],
     };
 
-    const form = await superValidate(formdata, invoicesInsertSchema);
+    const form = await superValidate(formdata, zod(invoicesInsertSchema));
 
     return { form, clients };
 }) satisfies PageServerLoad;
 
 export const actions = {
     default: async ({ request }) => {
-        const form = await superValidate(request, invoicesInsertSchema);
+        const form = await superValidate(request, zod(invoicesInsertSchema));
         console.log(form.data, JSON.stringify(form.errors));
         if (!form.valid) {
             return fail(400, { form });

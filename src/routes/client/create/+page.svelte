@@ -17,10 +17,11 @@
     import { Save } from 'lucide-svelte';
     import { superForm } from 'sveltekit-superforms/client';
     import type { PageData } from './$types';
+    import { zod } from 'sveltekit-superforms/adapters';
 
     export let data: PageData;
     const { form, enhance, errors, validate } = superForm(data.form, {
-        validators: clientsInsertSchema,
+        validators: zod(clientsInsertSchema),
         taintedMessage: null,
     });
     const searchOptions = ['ФЛ', 'ЮЛ/ИП'] as const;
@@ -107,10 +108,6 @@
             focusTo?.focus();
         }
     };
-
-    $: {
-        console.log($form);
-    }
 </script>
 
 <section class="flex justify-center">
